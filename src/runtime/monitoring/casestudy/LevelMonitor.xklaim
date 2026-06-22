@@ -1,0 +1,27 @@
+package runtime.monitoring.casestudy
+
+proc LevelMonitor(Locality monitorLoc, Locality safetyLoc, Locality logLoc,
+	Tuple normalTuple, Tuple warningTuple, Tuple emergencyTuple) {
+	while (!Thread.interrupted) {
+		or(
+			proc {
+				in(normalTuple)@monitorLoc
+				in("Level", var Integer k)@safetyLoc
+				out("Level", 0)@safetyLoc
+				out("Event", "LevelRestored", k, 0, System.currentTimeMillis())@logLoc
+			},
+			proc {
+				in(warningTuple)@monitorLoc
+				in("Level", var Integer k)@safetyLoc
+				out("Level", 1)@safetyLoc
+				out("Event", "LevelRaised", k, 1, System.currentTimeMillis())@logLoc
+			},
+			proc {
+				in(emergencyTuple)@monitorLoc
+				in("Level", var Integer k)@safetyLoc
+				out("Level", 2)@safetyLoc
+				out("Event", "LevelRaised", k, 2, System.currentTimeMillis())@logLoc
+			}
+		)
+	}
+}

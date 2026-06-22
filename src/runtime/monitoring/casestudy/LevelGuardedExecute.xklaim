@@ -1,0 +1,26 @@
+package runtime.monitoring.casestudy
+
+import klava.Locality
+import klava.topology.KlavaProcess
+
+proc LevelGuardedExecute(Locality safetyLoc, Locality logLoc,
+		KlavaProcess normalP, KlavaProcess reducedP, KlavaProcess haltP) {
+	or(
+		proc {
+			// Level 0: no hazard, execute normally
+			read("Level", 0)@safetyLoc
+			executeNodeProcess(normalP)
+		},
+		proc {
+			// Level 1: proximity, execute in a reduced way
+			read("Level", 1)@safetyLoc
+			executeNodeProcess(reducedP)
+		},
+		proc {
+			// Level 2: emergency, safe halt
+			read("Level", 2)@safetyLoc
+			executeNodeProcess(haltP)
+		}
+	)
+}
+

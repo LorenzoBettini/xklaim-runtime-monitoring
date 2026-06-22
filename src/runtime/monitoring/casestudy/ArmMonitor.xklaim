@@ -1,0 +1,11 @@
+package runtime.monitoring.casestudy
+
+import klava.Locality
+
+proc ArmMonitor(Locality monitorLoc, Locality safetyLoc, Locality logLoc) {
+	executeNodeProcess(new LevelMonitor(monitorLoc, safetyLoc, logLoc,
+		new Tuple("NormalRestored"), // Operator leaves perimeter
+		new Tuple("WarningDetected"), // Operator enters outer perimeter
+		new Tuple("EmergencyDetected") // Operator enters inner perimeter
+	))
+}

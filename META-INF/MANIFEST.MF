@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: xklaim-runtime-monitoring
+Bundle-ManifestVersion: 2
+Bundle-Name: xklaim-runtime-monitoring
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: xklaim-runtime-monitoring; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: xklaim.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-21

@@ -1,0 +1,20 @@
+package runtime.monitoring
+
+proc SafetyMonitorImperative(Locality monitorLoc, Locality safetyLoc) {
+	while (!Thread.interrupted) {
+		or(
+			proc {
+				in("SafetyConditionDetected")@monitorLoc
+				println("SAFETY MONITOR: SafetyConditionDetected")
+				in(var String current)@safetyLoc
+				out("Stop")@safetyLoc
+			},
+			proc {
+				in("SafetyConditionCleared")@monitorLoc
+				println("SAFETY MONITOR: SafetyConditionCleared")
+				in(var String current)@safetyLoc
+				out("Clear")@safetyLoc
+			}
+		)
+	}
+}

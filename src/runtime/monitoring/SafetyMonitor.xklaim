@@ -1,0 +1,38 @@
+package runtime.monitoring
+
+proc SafetyMonitor(Locality monitorLoc, Locality safetyLoc) {
+	while (!Thread.interrupted) {
+		or(
+			proc {
+				in("SafetyConditionDetected")@monitorLoc
+				println("SAFETY MONITOR: SafetyConditionDetected")
+				or (
+					proc {
+						in("Clear")@safetyLoc
+						out("Stop")@safetyLoc
+						println("SAFETY MONITOR: Stop")
+					},
+					proc {
+						read("Stop")@safetyLoc
+						println("SAFETY MONITOR: Already Stop")
+					}
+				)
+			},
+			proc {
+				in("SafetyConditionCleared")@monitorLoc
+				println("SAFETY MONITOR: SafetyConditionCleared")
+				or (
+					proc {
+						in("Stop")@safetyLoc
+						out("Clear")@safetyLoc
+						println("SAFETY MONITOR: Clear")
+					},
+					proc {
+						read("Clear")@safetyLoc
+						println("SAFETY MONITOR: Already Clear")
+					}
+				)
+			}
+		)
+	}
+}

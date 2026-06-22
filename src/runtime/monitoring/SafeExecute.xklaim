@@ -1,0 +1,18 @@
+package runtime.monitoring
+
+proc SafeExecute(KlavaProcess P, Locality safetyLoc) {
+	or(
+		proc {
+			read("Clear")@safetyLoc
+			println("SAFE EXECUTE: Clear")
+			executeNodeProcess(P)
+		},
+		proc {
+			read("Stop")@safetyLoc
+			println("SAFE EXECUTE: Stop")
+			read("Clear")@safetyLoc
+			println("SAFE EXECUTE: Clear Again")
+			executeNodeProcess(P)
+		}
+	)
+}

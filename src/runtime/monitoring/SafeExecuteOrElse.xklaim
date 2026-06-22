@@ -1,0 +1,18 @@
+package runtime.monitoring
+
+proc SafeExecuteOrElse(KlavaProcess P, KlavaProcess F, Locality safetyLoc, long timeout) {
+	or(
+		proc {
+			read("Clear")@safetyLoc
+			executeNodeProcess(P)
+		},
+		proc {
+			read("Stop")@safetyLoc
+			if (read("Clear")@safetyLoc within timeout) {
+				executeNodeProcess(P)
+			} else {
+				executeNodeProcess(F)
+			}
+		}
+	)
+}

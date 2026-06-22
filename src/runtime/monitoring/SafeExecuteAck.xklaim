@@ -1,0 +1,17 @@
+package runtime.monitoring
+
+proc SafeExecuteAck(KlavaProcess P, Locality safetyLoc, Locality ackLoc, String id, long timeout) {
+	or(
+		proc {
+			read("Clear")@safetyLoc
+			executeNodeProcess(P)
+		},
+		proc {
+			read("Stop")@safetyLoc
+			if (read("Clear")@safetyLoc within timeout) {
+				out("Resumed", id)@ackLoc
+				executeNodeProcess(P)
+			}
+		}
+	)
+}

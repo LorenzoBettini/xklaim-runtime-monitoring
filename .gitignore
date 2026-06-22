@@ -1,0 +1,6 @@
+#/src-gen/
+/bin
+
+*.java._trace
+
+.DS_Store

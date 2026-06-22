@@ -1,0 +1,38 @@
+package runtime.monitoring.casestudy
+
+net CaseStudyExamplePlaceAbortedNet physical "localhost:9999" {
+	node CaseStudyExampleAborted {
+		val monitorLoc = newloc
+		val safetyLoc = newloc
+		val logLoc = newloc
+		val jointsLoc = newloc
+		var gripperLoc = newloc
+
+		out("Level", 0)@safetyLoc
+		// Proximity Sensor
+		out("EmergencyDetected")@monitorLoc
+
+		// Give some time to ArmMonitor to retrieve from monitorLoc
+		sleep(1000)
+
+		eval(new ArmMonitor(monitorLoc, safetyLoc, logLoc))@self
+
+		// Give some time to ArmController to retrieve from safetyLoc
+		sleep(1000)
+
+		eval(new ArmRobot(jointsLoc, gripperLoc))@self
+
+		// CriticalProcess
+		eval(new ArmController(safetyLoc, logLoc, jointsLoc, gripperLoc,
+			new Coordinate("1.0, 2.0, 3.0"),
+			new Coordinate("4.0, 5.0, 6.0")
+		))@self
+
+		// Give some time to ArmRobot to retrieve tuples from jointsLoc and gripperLoc
+		sleep(1000)
+
+		in("ArmController", "Pick", "Aborted")@logLoc
+		println("FINISH")
+		done()
+	}
+}

@@ -1,0 +1,48 @@
+package examples
+
+import runtime.monitoring.SafeExecute
+import runtime.monitoring.SafetyMonitorImperative
+
+net SafetyMonitorExampleNet physical "localhost:9999" {
+	node SafetyMonitorExample {
+		val monitorLoc = newloc
+		val safetyLoc = newloc
+
+		out("Clear")@safetyLoc
+
+		eval(new SafetyMonitorImperative(monitorLoc, safetyLoc))@self
+
+		// MonitorLocProcess
+		println("out: SafetyConditionDetected")
+		out("SafetyConditionDetected")@monitorLoc
+		println("out: SafetyConditionDetected")
+		out("SafetyConditionDetected")@monitorLoc
+		println("out: SafetyConditionDetected")
+		out("SafetyConditionDetected")@monitorLoc
+
+		// CriticalProcess
+		eval(
+			proc {
+				println("CriticalProcess: non critical action")
+				println("CriticalProcess: about to perform critical action")
+				executeNodeProcess(new SafeExecute(proc {
+					println("CriticalProcess: perform critical action")
+					out("Finish")@self
+				}, safetyLoc))
+			}
+		)@self
+
+		// MonitorLocProcess
+		sleep(2000)
+		println("out: SafetyConditionCleared")
+		out("SafetyConditionCleared")@monitorLoc
+		println("out: SafetyConditionCleared")
+		out("SafetyConditionCleared")@monitorLoc
+		println("out: SafetyConditionCleared")
+		out("SafetyConditionCleared")@monitorLoc
+
+		in("Finish")@self
+		println("FINISH")
+		System.exit(0)
+	}
+}

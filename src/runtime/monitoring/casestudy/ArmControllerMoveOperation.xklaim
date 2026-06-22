@@ -1,0 +1,27 @@
+package runtime.monitoring.casestudy
+
+import klava.Locality
+
+proc ArmControllerMoveOperation(Locality safetyLoc, Locality logLoc, Locality jointsLoc,
+		Coordinate target, KlavaProcess afterMove) {
+	executeNodeProcess(new LevelGuardedExecute(safetyLoc, logLoc,
+		// normal process
+		proc {
+			out("Move", "Normal", target)@jointsLoc
+			executeNodeProcess(afterMove)
+			out("Arm", "MoveResult", true)@self
+		},
+		// reduced process
+		proc{
+			out("Move", "Slowly", target)@jointsLoc
+			executeNodeProcess(afterMove)
+			out("Arm", "MoveResult", true)@self
+		},
+		// halt process
+		proc {
+			out("Move", "Halt", target)@jointsLoc
+			out("Arm", "MoveResult", false)@self
+		}
+	))
+}
+

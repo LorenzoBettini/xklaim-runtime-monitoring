@@ -1,0 +1,15 @@
+package runtime.monitoring.casestudy
+
+import klava.Locality
+
+proc ArmRobot(Locality jointsLoc, Locality gripperLoc) {
+	while (!Thread.interrupted) {
+		in("Move", var String moveAct, var Coordinate target)@jointsLoc
+		println("ArmRobot Move(" + target + "): " + moveAct)
+		if (moveAct != "Halt") {
+			in(var String act)@gripperLoc
+			println("ArmRobot: " + act)
+		}
+	}
+}
+

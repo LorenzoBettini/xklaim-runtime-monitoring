@@ -1,0 +1,37 @@
+package runtime.monitoring.casestudy
+
+import klava.Locality
+
+proc ArmController(Locality safetyLoc, Locality logLoc,
+	Locality jointsLoc, Locality gripperLoc,
+	Coordinate pickCoordinate, Coordinate placeCoordinate) {
+
+	executeNodeProcess(
+		new ArmControllerMoveOperation(safetyLoc, logLoc, jointsLoc, pickCoordinate,
+			proc { out("Grasp")@gripperLoc }
+		)
+	)
+
+	in("Arm", "MoveResult", var Boolean pickResult)@self
+	if (!pickResult) {
+		out("ArmController", "Pick", "Aborted")@logLoc
+		return
+	}
+
+	out("ArmController", "Pick", "OK")@logLoc
+
+	executeNodeProcess(
+		new ArmControllerMoveOperation(safetyLoc, logLoc, jointsLoc, placeCoordinate,
+			proc { out("Release")@gripperLoc }
+		)
+	)
+
+	in("Arm", "MoveResult", var Boolean placeResult)@self
+	if (!placeResult) {
+		out("ArmController", "Place", "Aborted")@logLoc
+		return
+	}
+
+	out("ArmController", "Place", "OK")@logLoc
+}
+
